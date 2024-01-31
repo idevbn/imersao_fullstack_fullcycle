@@ -1,1 +1,37 @@
 infos.txt
+
+# compiled output
+/nestjs-api/dist
+/nestjs-api/node_modules
+
+# Logs
+logs
+/nestjs-api/*.log
+/nestjs-api/npm-debug.log*
+/nestjs-api/pnpm-debug.log*
+/nestjs-api/yarn-debug.log*
+/nestjs-api/yarn-error.log*
+/nestjs-api/lerna-debug.log*
+
+# OS
+/nestjs-api/.DS_Store
+
+# Tests
+/nestjs-api/coverage
+/nestjs-api/.nyc_output
+
+# IDEs and editors
+/nestjs-api/.idea
+/nestjs-api/.project
+/nestjs-api/.classpath
+/nestjs-api/.c9/
+/nestjs-api/*.launch
+/nestjs-api/.settings/
+/nestjs-api/*.sublime-workspace
+
+# IDE - VSCode
+/nestjs-api.vscode/*
+/nestjs-api!.vscode/settings.json
+/nestjs-api!.vscode/tasks.json
+/nestjs-api!.vscode/launch.json
+/nestjs-api!.vscode/extensions.json
