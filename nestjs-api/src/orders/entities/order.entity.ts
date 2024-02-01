@@ -22,7 +22,7 @@ export type CreateOrderCommand = {
   }[];
 };
 
-@Entity()
+@Entity('tb_order')
 export class Order {
   @PrimaryGeneratedColumn('uuid')
   id: string;

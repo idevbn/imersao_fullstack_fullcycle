@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { Order } from './order.entity';
 
-@Entity()
+@Entity('tb_order_item')
 export class OrderItem {
   @PrimaryGeneratedColumn()
   id: number;
