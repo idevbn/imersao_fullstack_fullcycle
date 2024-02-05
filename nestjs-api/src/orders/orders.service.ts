@@ -9,22 +9,21 @@ import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 @Injectable()
 export class OrdersService {
   constructor(
-    @InjectRepository(Order) private ordersRepo: Repository<Order>,
-    @InjectRepository(Product) private productsRepo: Repository<Product>,
+    @InjectRepository(Order) private orderRepo: Repository<Order>,
+    @InjectRepository(Product) private productRepo: Repository<Product>,
     private amqpConnection: AmqpConnection,
   ) {}
 
   async create(createOrderDto: CreateOrderDto & { client_id: number }) {
-    const productsIds = createOrderDto.items.map((item) => item.product_id);
-    const uniqueProductIds = [...new Set(productsIds)];
-    const products = await this.productsRepo.findBy({
+    const productIds = createOrderDto.items.map((item) => item.product_id);
+    const uniqueProductIds = [...new Set(productIds)];
+    const products = await this.productRepo.findBy({
       id: In(uniqueProductIds),
     });
 
     if (products.length !== uniqueProductIds.length) {
       throw new Error(
-        `Algum produto não existe. Produtos passados ${productsIds},
-        produtos encontrados ${products.map((product) => product.id)}`,
+        `Algum produto não existe. Produtos passados ${productIds}, produtos encontrados ${products.map((product) => product.id)}`,
       );
     }
 
@@ -41,20 +40,18 @@ export class OrdersService {
         };
       }),
     });
-
-    await this.ordersRepo.save(order);
-
+    await this.orderRepo.save(order);
     await this.amqpConnection.publish('amq.direct', 'OrderCreated', {
       order_id: order.id,
-      card_id: createOrderDto.card_hash,
+      card_hash: createOrderDto.card_hash,
       total: order.total,
     });
-
+    // publish diretamente numa fila
     return order;
   }
 
   findAll(client_id: number) {
-    return this.ordersRepo.find({
+    return this.orderRepo.find({
       where: {
         client_id,
       },
@@ -65,9 +62,33 @@ export class OrdersService {
   }
 
   findOne(id: string, client_id: number) {
-    return this.ordersRepo.findOneByOrFail({
+    return this.orderRepo.findOneByOrFail({
       id,
       client_id,
     });
+  }
+
+  async pay(id: string) {
+    const order = await this.orderRepo.findOneByOrFail({
+      id,
+    });
+
+    order.pay();
+
+    await this.orderRepo.save(order);
+
+    return order;
+  }
+
+  async fail(id: string) {
+    const order = await this.orderRepo.findOneByOrFail({
+      id,
+    });
+
+    order.fail();
+
+    await this.orderRepo.save(order);
+
+    return order;
   }
 }
